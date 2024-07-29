@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <div id="chatbox">
+        <p id="chatlog"></p>
+        <input type="text" id="userInput" autocomplete="off"/>
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Add the greeting message when the page loads
+            $("#chatlog").append("<p>Caida: Hi! I'm Caida. How can I help you?</p>");
+    
+            // Event listener for the Enter key in the input field
+            $("#userInput").keypress(function(e) {
+                if(e.which == 13) { // Enter key has keycode 13
+                    sendMessage();
+                    e.preventDefault(); // Prevent the default action to stop form submission
+                }
+            });
+        });
+    
+        function sendMessage() {
+            var userText = $("#userInput").val();
+            $("#chatlog").append("<p>You: " + userText + "</p>");
+            $.post("/ask", {messageText: userText}, function(data, status){
+                if(data.learn) {
+                    var userResponse = prompt("I don't know how to respond to that. Can you teach me? What should I have said?");
+                    if(userResponse) {
+                        $.post("/teach", {pattern: userText, response: userResponse}, function(data, status){
+                            $("#chatlog").append("<p>Caida: Thank you! I've learned something new.</p>");
+                        });
+                    }
+                } else {
+                    $("#chatlog").append("<p>Caida: " + data.answer + "</p>");
+                }
+                $("#userInput").val(""); // Clear input box
+            });
+        }
+    </script>
+</body>
+</html>
