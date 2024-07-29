@@ -1,6 +1,3 @@
-
-# current app.py
-
 import os
 from flask import Flask, request, jsonify, render_template
 from chathelper import CustomChat
@@ -24,14 +21,19 @@ def initialize_db_helper():
     try:
         if db_helper is None:
             db_helper = main()
+            app.logger.info("Database helper initialized successfully.")
     except Exception as e:
         app.logger.error(f"Error initializing db_helper: {e}")
 
 initialize_db_helper()
 
 try:
-    chat_pairs = db_helper.fetch_chat_pairs()
-    chatbot = CustomChat(chat_pairs, reflections={}, db_helper=db_helper)
+    if db_helper:
+        chat_pairs = db_helper.fetch_chat_pairs()
+        chatbot = CustomChat(chat_pairs, reflections={}, db_helper=db_helper)
+        app.logger.info("Chatbot initialized successfully.")
+    else:
+        app.logger.error("db_helper is None. Chatbot initialization failed.")
 except Exception as e:
     app.logger.error(f"Error initializing chatbot: {e}")
 
