@@ -4,7 +4,15 @@ from chathelper import CustomChat
 from helpermain import main  # Import the main function from helpermain.py
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-database_url = os.getenv('DATABASE_URL', 'sqlite:///' + os.path.join(basedir, 'datasets', 'azure.db'))
+
+# Construct the PostgreSQL connection string from environment variables
+db_name = os.getenv('DB_NAME', 'caida')
+db_user = os.getenv('DB_USER', 'caida')
+db_password = os.getenv('DB_PASSWORD', 'Sn@rPHM3AndYou!!')
+db_host = os.getenv('DB_HOST', 'caida-postgre-flex.postgres.database.azure.com')
+db_port = os.getenv('DB_PORT', '5432')
+
+database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 
 class Config:
     SQLALCHEMY_DATABASE_URI = database_url
@@ -21,19 +29,14 @@ def initialize_db_helper():
     try:
         if db_helper is None:
             db_helper = main()
-            app.logger.info("Database helper initialized successfully.")
     except Exception as e:
         app.logger.error(f"Error initializing db_helper: {e}")
 
 initialize_db_helper()
 
 try:
-    if db_helper:
-        chat_pairs = db_helper.fetch_chat_pairs()
-        chatbot = CustomChat(chat_pairs, reflections={}, db_helper=db_helper)
-        app.logger.info("Chatbot initialized successfully.")
-    else:
-        app.logger.error("db_helper is None. Chatbot initialization failed.")
+    chat_pairs = db_helper.fetch_chat_pairs()
+    chatbot = CustomChat(chat_pairs, reflections={}, db_helper=db_helper)
 except Exception as e:
     app.logger.error(f"Error initializing chatbot: {e}")
 

@@ -1,0 +1,6 @@
+# Set these in your system environment variables or in a .env file
+DB_NAME=caida   
+DB_USER=caida
+DB_PASSWORD="Sn@rPHM3AndYou!!"
+DB_HOST=localhost
+DB_PORT=5432
